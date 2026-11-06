@@ -4,6 +4,12 @@ Each version lists what the app does as of that version. The newest version is f
 
 ## Unreleased
 
+## 0.0.5 (2026-11-06)
+
+Everything in 0.0.4, plus:
+
+- **An edit to the vocabulary no longer breaks every rule.** The vocabulary's editor holds the vocabulary alone, ending in `in` with nothing after it, an empty hole it writes as `?`. That `?` came with every edit to the vocabulary, so the whole program was broken, and every rule showed errors, however the edit was undone. Now the vocabulary is its text without it.
+
 ## 0.0.4 (2026-11-06)
 
 Everything in 0.0.3, plus:
