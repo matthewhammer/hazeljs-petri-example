@@ -8,13 +8,17 @@ It is an example app for `hazeljs`, the second one after [Messed Up Dress Up](ht
 
 > **Experimental.** `hazeljs` is a 0.0.x prototype, and Hazel's tile editor comes from a branch build of Hazel. The site is the page as it is; its redesign in Messed Up Dress Up's style is planned ([PLAN.md](PLAN.md)).
 
-The net, with its event log: each event, which engine answered, and the answer acted out:
+The rules on the left, each module in Hazel's own editor, and the net on the right, with its buttons and its event log. An opened entry shows the event, Hazel's answer, and the tokens it moved:
 
-<img src="pictures/net-and-log.jpg" width="720" alt="The app: the net of two processes and a lock, with Step and Reset buttons, the status saying the rules are ready, and the event log with one entry open: Fire(2), Hazel's answer, and the tokens it moved.">
+<img src="pictures/rules-and-net.jpg" width="720" alt="The app in two columns. On the left, the vocabulary and the module Common in Hazel's tile editor. On the right, the net of two processes and a lock, the Step, Reset and full screen buttons, the status saying the rules are ready, and the event log with one entry open: the event Step, Hazel's answer Say(&quot;leave1&quot;, Take(...)), and the tokens it moved.">
 
-The handler, `Rules.on_event`, in Hazel's own editor:
+An error is shown under the listing it is in, in words. Here `++` joins a string to an Int. While the rules have an error or a hole, the page's own JavaScript answers each event, and the log says which engine answered (`JS`):
 
-<img src="pictures/rules.png" width="720" alt="The module Rules in Hazel's tile editor: fire_at picks a transition and fires it if it can; on_event handles Fire(i) and Step.">
+<img src="pictures/error-under-its-rule.jpg" width="720" alt="The module Rules in Hazel's editor, with i outlined in &quot;there is no transition &quot; ++ i, and under the listing: i: a String is wanted here, but this is an Int. Beside it, the status says the rules are not ready, so the page's own JS answers events, and the log's two entries are marked JS.">
+
+**⛶ full screen** gives the whole app the screen, in two columns. Drag the divider between the columns to give the rules or the net more room, on the page as well as in full screen. You can also use the arrow keys on the divider, and a double-click puts it back:
+
+<img src="pictures/full-screen.jpg" width="720" alt="The app in full screen: the modules Common and Rules on the left, the divider, and on the right the net, its buttons with leave full screen, and an event log of six Hazel answers.">
 
 ## Run it
 

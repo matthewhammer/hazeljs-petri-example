@@ -4,6 +4,13 @@ Each version lists what the app does as of that version. The newest version is f
 
 ## Unreleased
 
+## 0.0.7 (2026-11-06)
+
+Everything in 0.0.6, plus:
+
+- **The divider on the page too.** With room for two columns, the divider between the rules and the net is on the page, not only in full screen: drag it, or use the arrow keys on it; a double-click puts it back. It runs the height of the columns, and its grip stays on the screen as the page scrolls. The page and full screen keep one place for it.
+- **New pictures in the README:** the rules beside the net, an error under its rule, and full screen.
+
 ## 0.0.6 (2026-11-06)
 
 Everything in 0.0.5, plus:

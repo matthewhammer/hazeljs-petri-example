@@ -139,7 +139,8 @@ h3.grp { margin-top: 1.2em; }
   /* (0.0.6, Matthew 2026-11-06: "reverse LHS and RHS ... code on left, dynamics on right", as Messed Up Dress Up) two columns: the
      rules on the left, the net and its log on the right; one column, on a narrow screen: the net first, as before */
   @container (min-width: 880px) {
-    .live-grid { grid-template-columns: minmax(0, 6fr) minmax(0, 4fr); }
+    /* (0.0.7) the divider between them on the page too, not only in full screen (--split: its place, from js/live.js) */
+    .live-grid { grid-template-columns: minmax(0, var(--split, 6fr)) 14px minmax(0, 4fr); column-gap: 6px; }
     .live-right { order: 1; } .live-divider { order: 2; } .live-left { order: 3; position: sticky; top: 8px; }
   }
   .live-left, .live-right { min-width: 0; }
@@ -201,13 +202,17 @@ h3.grp { margin-top: 1.2em; }
 .live.live-max { position: fixed; inset: 0; z-index: 10000; }
 html.live-max-on, html.live-max-on body { overflow: hidden; }
 .live:fullscreen .script-log .log-list, .live.live-max .script-log .log-list { max-height: 45vh; }
-/* (0.0.4) full screen, two columns: the divider between the net and the rules (js/live.js), as Messed Up Dress Up's: dragged,
-   the arrow keys on it, a double-click for the first split */
+/* (0.0.4) two columns: the divider between the net and the rules (js/live.js), as Messed Up Dress Up's: dragged, the arrow keys
+   on it, a double-click for the first split. (0.0.7, Matthew 2026-11-06: on the page too, not only in full screen.) On the page
+   it runs the height of the columns, its grip kept on the screen as the page scrolls; in full screen it is the screen's height. */
 .live-divider { display: none; }
 @container (min-width: 880px) {
-  .live:fullscreen .live-grid, .live.live-max .live-grid { grid-template-columns: minmax(0, var(--split, 6fr)) 14px minmax(0, 4fr); column-gap: 6px; }
-  .live:fullscreen .live-divider, .live.live-max .live-divider { display: flex; position: sticky; top: 8px; height: calc(100vh - 48px); height: calc(100dvh - 48px);
-    cursor: col-resize; touch-action: none; align-items: center; justify-content: center; border-radius: 7px; outline: none; }
+  .live-divider { display: flex; align-self: stretch; cursor: col-resize; touch-action: none; align-items: flex-start; justify-content: center;
+    border-radius: 7px; outline: none; }
+  .live-divider::before { position: sticky; top: 45vh; margin-top: 48px; }
+  .live:fullscreen .live-divider, .live.live-max .live-divider { align-self: start; position: sticky; top: 8px; height: calc(100vh - 48px); height: calc(100dvh - 48px);
+    align-items: center; }
+  .live:fullscreen .live-divider::before, .live.live-max .live-divider::before { position: static; margin-top: 0; }
 }
 .live-divider::before { content: ""; width: 5px; height: 56px; border-radius: 3px; background: var(--line); }
 .live-divider:hover::before, .live-divider:focus-visible::before, .live-divider.drag::before { background: var(--accent); height: 96px; }

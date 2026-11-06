@@ -255,9 +255,10 @@
     // whole example, the net, its log and the editors, on the screen, in two columns when it is wide enough. The browser's own
     // full screen where it has one for an element; where it has none (iPhone Safari), the example made to fill the window,
     // Escape or the button to leave.
-    // The divider between the net and the rules, in full screen when it is wide enough for two columns (Matthew, 2026-11-06:
-    // "when we do FS here ... we need to have LHS vs RHS slider"), as the game's (its js/21-size-and-divider.js): dragged, or
-    // the arrow keys on it; a double-click, the first split again. Its place is kept, as a share of the width, for next time.
+    // The divider between the net and the rules, wherever it is wide enough for two columns: in full screen (Matthew, 2026-11-06:
+    // "when we do FS here ... we need to have LHS vs RHS slider"), and since 0.0.7 on the page too (his "yes, add it"), as the
+    // game's (its js/21-size-and-divider.js): dragged, or the arrow keys on it; a double-click, the first split again. Its place
+    // is kept, as a share of the width, for next time; one share for the page and full screen, as the game's views share theirs.
     const grid = $(".live-grid");
     const divider = el("div", { class: "live-divider", role: "separator", "aria-orientation": "vertical", tabindex: "0",
       "aria-valuemin": "0", "aria-valuemax": "100", "aria-label": "Between the net and the rules",
@@ -307,8 +308,9 @@
     $(".live-controls").append(fsBtn);
     const isFs = () => document.fullscreenElement === root || root.classList.contains("live-max");
     const fsLabel = () => { fsBtn.textContent = isFs() ? "✕ leave full screen" : "⛶ full screen"; };
-    // (the kept split, at the full screen's width; after a timer, not an animation frame: a page in the background has none)
-    const splitSoon = () => { if (isFs()) setTimeout(() => setSplit(), 0); };
+    // (the kept split, at the width there is now, the page's or the full screen's; after a timer, not an animation frame: a page
+    // in the background has none)
+    const splitSoon = () => { setTimeout(() => setSplit(), 0); };
     const maxOn = on => { root.classList.toggle("live-max", on); document.documentElement.classList.toggle("live-max-on", on); fsLabel(); splitSoon(); };
     fsBtn.addEventListener("click", () => {
       if (document.fullscreenElement === root) { document.exitFullscreen(); return; }
@@ -324,6 +326,7 @@
     addEventListener("resize", splitSoon);
     addEventListener("keydown", e => { if (e.key === "Escape" && root.classList.contains("live-max")) maxOn(false); });
     root.classList.add("on");
+    splitSoon();
     drawAll();
     // Hazel's library only once the section is near the screen, about 650 kB (the editors start on their own: hazel-listings.js)
     // (looked for on load, on scroll and every second, not by an IntersectionObserver: in a page in the background those never
