@@ -9,7 +9,7 @@ Each version lists what the app does as of that version. The newest version is f
 Everything in 0.0.2, plus:
 
 - **Errors under the rule they are in.** Hazel's editor outlines an error where it is; now its message is shown too, under the listing it is in (a type error said as a person reads it: "a Float is wanted here, but this is a String"), with its holes and unfinished brackets. Hazel's own app shows these in a bar the editor in a frame does not have.
-- **Your own copy of Hazel's editor.** The page can frame an editor served from its own site (`data-frame` on `js/hazel-listings.js`'s script tag), which Hazel's editor takes messages from whatever its site.
+- **Your own copy of Hazel's editor.** The page can frame a copy of the editor served from its own site (`data-frame` on `js/hazel-listings.js`'s script tag). An editor takes messages from a page on its own site, so a copy beside the page works on any site.
 
 ## 0.0.2 (2026-11-06)
 
