@@ -136,7 +136,12 @@ h3.grp { margin-top: 1.2em; }
   /* (within the page's column: the nav beside it makes any width from the window wrong) two columns when the column is wide */
   .live { container-type: inline-size; }
   .live-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start; }
-  @container (min-width: 880px) { .live-grid { grid-template-columns: minmax(0, 4fr) minmax(0, 6fr); } .live-left { position: sticky; top: 8px; } }
+  /* (0.0.6, Matthew 2026-11-06: "reverse LHS and RHS ... code on left, dynamics on right", as Messed Up Dress Up) two columns: the
+     rules on the left, the net and its log on the right; one column, on a narrow screen: the net first, as before */
+  @container (min-width: 880px) {
+    .live-grid { grid-template-columns: minmax(0, 6fr) minmax(0, 4fr); }
+    .live-right { order: 1; } .live-divider { order: 2; } .live-left { order: 3; position: sticky; top: 8px; }
+  }
   .live-left, .live-right { min-width: 0; }
   .live-panel { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
   .live-controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
@@ -200,7 +205,7 @@ html.live-max-on, html.live-max-on body { overflow: hidden; }
    the arrow keys on it, a double-click for the first split */
 .live-divider { display: none; }
 @container (min-width: 880px) {
-  .live:fullscreen .live-grid, .live.live-max .live-grid { grid-template-columns: minmax(0, var(--split, 4fr)) 14px minmax(0, 6fr); column-gap: 6px; }
+  .live:fullscreen .live-grid, .live.live-max .live-grid { grid-template-columns: minmax(0, var(--split, 6fr)) 14px minmax(0, 4fr); column-gap: 6px; }
   .live:fullscreen .live-divider, .live.live-max .live-divider { display: flex; position: sticky; top: 8px; height: calc(100vh - 48px); height: calc(100dvh - 48px);
     cursor: col-resize; touch-action: none; align-items: center; justify-content: center; border-radius: 7px; outline: none; }
 }

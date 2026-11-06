@@ -4,6 +4,12 @@ Each version lists what the app does as of that version. The newest version is f
 
 ## Unreleased
 
+## 0.0.6 (2026-11-06)
+
+Everything in 0.0.5, plus:
+
+- **The rules on the left, the net on the right.** When there is room for two columns, the rules' editors are on the left and the net, its buttons and its log on the right, as code and its running are in Messed Up Dress Up. On a narrow screen, one column, the net is still first. In full screen, the divider is between them as before; its place is kept as the left column's share.
+
 ## 0.0.5 (2026-11-06)
 
 Everything in 0.0.4, plus:
