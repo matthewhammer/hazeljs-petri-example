@@ -4,6 +4,12 @@ Each version lists what the app does as of that version. The newest version is f
 
 ## Unreleased
 
+## 0.0.9 (2026-11-06)
+
+Everything in 0.0.8, plus:
+
+- **The rules' long lines break to fit their panel, and again when it changes width.** A line longer than its listing is laid out as a pretty-printer would, at the outermost places the code allows: a case's arms each on a line, a let's body under it, a list's items, a long message before its `++`; each piece 2 deeper. Only spaces and line breaks change (a long comment becomes several), so the rules mean what they meant. Drag the divider, resize the window or go in or out of full screen, and they break again; widen a panel and the long lines come back. Messed Up Dress Up's way, from its script panel (hazelgrove/hazeljs#1). The listings are drawn in the page's own code font, so the width is measured in it.
+
 ## 0.0.8 (2026-11-06)
 
 Everything in 0.0.7, plus:
