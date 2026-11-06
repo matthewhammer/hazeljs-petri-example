@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Petri nets, with rules in Hazel</title>
 <meta name="description" content="A Petri net simulator whose firing rule is written in Hazel and run by hazeljs: edit the rules in Hazel's own editor while the net runs. An example app for hazeljs, after Messed Up Dress Up.">
-<link rel="stylesheet" href="style.css?v=0.0.7">
+<link rel="stylesheet" href="style.css?v=0.0.8">
 <style>
   .app-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
   .app-head h1 { margin: 0; }
@@ -20,7 +20,7 @@
 </div>
 <p class="sub">The page keeps the net and draws it; a Hazel program decides what each event does. Click a transition to fire it, or step at random. The rules below are in <a href="https://hazel.org">Hazel</a>'s own editor: change them, and the page builds them again with <code>hazeljs</code>. While they have an error or a hole, the page's own JavaScript answers instead, and the log says which did.</p>
 
-<div class="live" id="live">
+<div class="live" id="live" data-start="max">
 <div class="live-grid">
 <div class="live-left">
 <div class="live-panel">
@@ -43,6 +43,6 @@
 
 <p class="app-foot" id="app-foot">hazeljs-petri-example · <a href="VERSIONS.md">versions</a> · Apache 2.0 (code), CC BY 4.0 (words) · by Matthew Hammer · an example for <a href="https://github.com/hazelgrove/hazeljs">hazeljs</a>, after <a href="https://matthewhammer.org/kids-choice-games/dress-up/">Messed Up Dress Up</a>, the first app with rules in Hazel</p>
 </main>
-<script src="js/app.js?v=0.0.7"></script>
+<script src="js/app.js?v=0.0.8"></script>
 </body>
 </html>

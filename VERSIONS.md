@@ -4,6 +4,12 @@ Each version lists what the app does as of that version. The newest version is f
 
 ## Unreleased
 
+## 0.0.8 (2026-11-06)
+
+Everything in 0.0.7, plus:
+
+- **Opens full screen, with no margins.** The app fills the window as soon as the page opens, its columns to the window's edges: the rules on the left, the net, its buttons and its log on the right. **✕ leave full screen**, or Escape, gives the page around it (the title, the links, the footer); **⛶ full screen** goes back. The browser's own full screen, which hides its tabs and bars too, still needs a click, as browsers ask.
+
 ## 0.0.7 (2026-11-06)
 
 Everything in 0.0.6, plus:

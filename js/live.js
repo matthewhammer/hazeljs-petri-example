@@ -325,7 +325,10 @@
     document.addEventListener("fullscreenchange", () => { fsLabel(); splitSoon(); });
     addEventListener("resize", splitSoon);
     addEventListener("keydown", e => { if (e.key === "Escape" && root.classList.contains("live-max")) maxOn(false); });
+    // (0.0.8, Matthew 2026-11-06: "should default to a FS mode, no margins") a page whose example says data-start="max" opens
+    // with the example filling the window (the browser's own full screen needs a click); the button or Escape gives the page
     root.classList.add("on");
+    if (root.dataset.start === "max") maxOn(true);
     splitSoon();
     drawAll();
     // Hazel's library only once the section is near the screen, about 650 kB (the editors start on their own: hazel-listings.js)

@@ -16,7 +16,7 @@ An error is shown under the listing it is in, in words. Here `++` joins a string
 
 <img src="pictures/error-under-its-rule.jpg" width="720" alt="The module Rules in Hazel's editor, with i outlined in &quot;there is no transition &quot; ++ i, and under the listing: i: a String is wanted here, but this is an Int. Beside it, the status says the rules are not ready, so the page's own JS answers events, and the log's two entries are marked JS.">
 
-**⛶ full screen** gives the whole app the screen, in two columns. Drag the divider between the columns to give the rules or the net more room, on the page as well as in full screen. You can also use the arrow keys on the divider, and a double-click puts it back:
+**The app opens full screen**, filling the window to its edges, in two columns; **✕ leave full screen** (or Escape) gives the page around it, and **⛶ full screen** goes back. Drag the divider between the columns to give the rules or the net more room, on the page as well as in full screen. You can also use the arrow keys on the divider, and a double-click puts it back:
 
 <img src="pictures/full-screen.jpg" width="720" alt="The app in full screen: the modules Common and Rules on the left, the divider, and on the right the net, its buttons with leave full screen, and an event log of six Hazel answers.">
 
