@@ -1,0 +1,16 @@
+{
+  "name": "hazeljs-petri-example",
+  "version": "0.0.1",
+  "private": true,
+  "description": "A Petri net simulator whose firing rule is written in Hazel and run by hazeljs: an example app for hazeljs.",
+  "type": "module",
+  "scripts": {
+    "example": "node node/petri.mjs",
+    "serve": "python3 -m http.server 8000 --bind 127.0.0.1"
+  },
+  "dependencies": {
+    "hazeljs": "0.0.4"
+  },
+  "license": "Apache-2.0",
+  "repository": "github:matthewhammer/hazeljs-petri-example"
+}

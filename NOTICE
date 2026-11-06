@@ -1,0 +1,8 @@
+hazeljs-petri-example
+Copyright 2026 Matthew Hammer
+
+The code (the .js, .mjs, .html, .css, .json and .hz files) is under the Apache License 2.0 (LICENSE).
+Everything else (the .md files, and the words and pictures) is under Creative Commons Attribution 4.0 (LICENSE-CC-BY-4.0).
+
+It uses hazeljs (https://github.com/hazelgrove/hazeljs, MIT), loaded from npm, and frames Hazel's own editor
+(https://hazel.org, MIT) from a branch build at build.hazel.org.

@@ -1,0 +1,96 @@
+{
+ "about": "Two processes sharing one lock (mutual exclusion): the classic small Petri net. Places by name; an arc names its place by index into places.",
+ "places": [
+  "idle1",
+  "busy1",
+  "idle2",
+  "busy2",
+  "lock"
+ ],
+ "marking": [
+  1,
+  0,
+  1,
+  0,
+  1
+ ],
+ "transitions": [
+  {
+   "name": "enter1",
+   "inputs": [
+    {
+     "place": 0,
+     "weight": 1
+    },
+    {
+     "place": 4,
+     "weight": 1
+    }
+   ],
+   "outputs": [
+    {
+     "place": 1,
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "name": "leave1",
+   "inputs": [
+    {
+     "place": 1,
+     "weight": 1
+    }
+   ],
+   "outputs": [
+    {
+     "place": 0,
+     "weight": 1
+    },
+    {
+     "place": 4,
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "name": "enter2",
+   "inputs": [
+    {
+     "place": 2,
+     "weight": 1
+    },
+    {
+     "place": 4,
+     "weight": 1
+    }
+   ],
+   "outputs": [
+    {
+     "place": 3,
+     "weight": 1
+    }
+   ]
+  },
+  {
+   "name": "leave2",
+   "inputs": [
+    {
+     "place": 3,
+     "weight": 1
+    }
+   ],
+   "outputs": [
+    {
+     "place": 2,
+     "weight": 1
+    },
+    {
+     "place": 4,
+     "weight": 1
+    }
+   ]
+  }
+ ],
+ "tail": "(Rules.on_event : (Net, Event) -> Cmd)"
+}
