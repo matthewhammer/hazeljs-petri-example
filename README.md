@@ -6,6 +6,14 @@ It is an example app for `hazeljs`, the second one after [Messed Up Dress Up](ht
 
 > **Experimental.** `hazeljs` is a 0.0.x prototype, and Hazel's tile editor comes from a branch build of Hazel. The site of this app is planned, not launched ([PLAN.md](PLAN.md)).
 
+The net, with its event log: each event, which engine answered, and the answer acted out:
+
+<img src="pictures/net-and-log.jpg" width="720" alt="The app: the net of two processes and a lock, with Step and Reset buttons, the status saying the rules are ready, and the event log with one entry open: Fire(2), Hazel's answer, and the tokens it moved.">
+
+The handler, `Rules.on_event`, in Hazel's own editor:
+
+<img src="pictures/rules.png" width="720" alt="The module Rules in Hazel's tile editor: fire_at picks a transition and fires it if it can; on_event handles Fire(i) and Step.">
+
 ## Run it
 
 The page needs to be served over http, from `localhost` (Hazel's editor frames take messages only from a few sites, `localhost` among them):
