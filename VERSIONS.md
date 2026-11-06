@@ -4,6 +4,14 @@ Each version lists what the app does as of that version. The newest version is f
 
 ## Unreleased
 
+## 0.0.2 (2026-11-06)
+
+Everything in 0.0.1, plus:
+
+- **⛶ Full screen.** A button beside Step makes the whole app, the net, its log and the rules, fill the screen, in two columns when the screen is wide enough. Where the browser has no full screen for part of a page (iPhone Safari), the app fills the window instead; the same button, or Escape, leaves it.
+- **The event log's lines open in full.** A closed entry stays on one line; an opened one shows the whole line, every token that moved.
+- **The site is live** at https://matthewhammer.org/hazeljs-petri-example/.
+
 ## 0.0.1 (2026-11-06)
 
 The first version, the worked example of [^report(43)](https://matthewhammer.org/hazel/reports/043/) as an app of its own:
