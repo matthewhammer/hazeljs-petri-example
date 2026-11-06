@@ -1,6 +1,6 @@
 # Plan: the app's Pages site
 
-Where this app goes next: a site of its own at **https://matthewhammer.org/hazeljs-petri-example/** (GitHub Pages from this repository, under Matthew's domain), made in the style of [Messed Up Dress Up](https://matthewhammer.org/kids-choice-games/dress-up/), the first app whose rules are written in Hazel. Not launched yet: Pages is off until Matthew says go.
+Where this app goes next: a site of its own at **https://matthewhammer.org/hazeljs-petri-example/** (GitHub Pages from this repository, under Matthew's domain), made in the style of [Messed Up Dress Up](https://matthewhammer.org/kids-choice-games/dress-up/), the first app whose rules are written in Hazel. Launched 2026-11-06, as the page is (step 2 below, without ℹ️ About yet); the rest of this plan is to come.
 
 Why that domain: Hazel's editor frame takes messages only from the sites in its allowlist (matthewhammer.org and localhost today), so the site must be served from matthewhammer.org until the frame's origin policy changes (hazelgrove/hazeljs, an editor in the package).
 
@@ -26,7 +26,7 @@ The point of the example is that someone with their own kind of net can see wher
 ## Steps
 
 1. 0.0.1: the example as an app (this version).
-2. A first site: Pages on, the page as it is, with ℹ️ About (version, repository, hazeljs and Hazel builds). Check it over HTTPS on matthewhammer.org.
+2. A first site: Pages on, the page as it is (done 2026-11-06, checked over HTTPS on matthewhammer.org), then ℹ️ About (version, repository, hazeljs and Hazel builds).
 3. The game's look: the full-screen net, the tabbed panel, 📜 Scripts with the outline, ⚙️ Advanced.
 4. 🧩 Nets: more nets, the drawing from `net.json`, then a coloured net with typed tokens.
 5. Ask the group Cyrus named (Cambridge) what their nets need, and add one of theirs.

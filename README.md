@@ -1,10 +1,12 @@
 # hazeljs-petri-example
 
+**▶ Try it at https://matthewhammer.org/hazeljs-petri-example/**
+
 **A Petri net simulator whose firing rule is written in [Hazel](https://hazel.org), and run by [hazeljs](https://www.npmjs.com/package/hazeljs).** The page keeps the net and draws it; on each event it hands a typed view of the net to a Hazel function and acts out the command that comes back. Edit the rules in Hazel's own editor while the net runs: while they have an error or a hole, the page's own JavaScript answers instead.
 
 It is an example app for `hazeljs`, the second one after [Messed Up Dress Up](https://matthewhammer.org/kids-choice-games/dress-up/), a game whose rooms are scripted the same way. How it works, step by step, with the same example live on the page: [Scripting a JavaScript App in Hazel](https://matthewhammer.org/hazel/reports/043/).
 
-> **Experimental.** `hazeljs` is a 0.0.x prototype, and Hazel's tile editor comes from a branch build of Hazel. The site of this app is planned, not launched ([PLAN.md](PLAN.md)).
+> **Experimental.** `hazeljs` is a 0.0.x prototype, and Hazel's tile editor comes from a branch build of Hazel. The site is the page as it is; its redesign in Messed Up Dress Up's style is planned ([PLAN.md](PLAN.md)).
 
 The net, with its event log: each event, which engine answered, and the answer acted out:
 
