@@ -4,6 +4,14 @@ Each version lists what the app does as of that version. The newest version is f
 
 ## Unreleased
 
+## 0.0.4 (2026-11-06)
+
+Everything in 0.0.3, plus:
+
+- **A divider in full screen.** Between the net and the rules, when the screen is wide enough for two columns: drag it to give either side more room, or use the arrow keys on it; a double-click puts it back. The app keeps its place for next time.
+- **Every error shown, under its own rule.** An error typed into one module was reported by the other module's editor and could be shown nowhere; now each error is shown under the listing it is in, whichever editor reports it.
+- **The `¤` explained.** It marks a gap: two pieces side by side with nothing joining them (`0. 1`, say). The message under the listing says so, and what to do: join them, with an operator or a comma, or delete one.
+
 ## 0.0.3 (2026-11-06)
 
 Everything in 0.0.2, plus:

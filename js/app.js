@@ -18,8 +18,10 @@
       places: net.places, transitions: net.transitions, marking: net.marking });
     document.body.append(data);
     if (version) document.getElementById("app-foot").prepend(`version ${version.number} (${version.released}) · `);
-    await load("js/hazel-listings.js");
-    await load("js/live.js");
+    // (each named with the app's version, so a browser holding an older copy fetches the new one)
+    const v = version ? "?v=" + encodeURIComponent(version.number) : "";
+    await load("js/hazel-listings.js" + v);
+    await load("js/live.js" + v);
   } catch (e) {
     document.getElementById("live-status").textContent = "Could not start: " + (e && e.message || e) + ". Serve this folder over http (python3 -m http.server) and open it from localhost.";
   }
