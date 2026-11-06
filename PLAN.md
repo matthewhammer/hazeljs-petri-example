@@ -13,14 +13,14 @@ Why that domain: Hazel's editor frame takes messages only from the sites in its 
    - **⚙️ Advanced:** which engine answers (Hazel, or the page's JS, to compare), the speed of Run, the editor's font size and line numbers, the theme, and the costs measured on this device (a call into Hazel, a build).
    - **ℹ️ About:** the version and its date (`version.json`, `VERSIONS.md`), the repository and its commit, hazeljs's version and the Hazel commit it was built from (`Hazel.build`), the editor's build, the licences, and links: the source on GitHub, ^report(43), hazeljs on npm.
 3. **Versions as the game has them:** `0.0.N`, each released when it deploys, each in `VERSIONS.md` with what it adds; the version shown in ℹ️ and in the page's corner; a service worker only if offline play is wanted (the game has one; this app need not).
-4. **A net drawn from `net.json`,** not drawn by hand: places and transitions laid out from the arcs (or positions in the file), so a reader's own net shows without code.
+4. **A net drawn from its definition,** not drawn by hand (done in 0.0.10: the net is Hazel, `rules/Main.hz`, with a position for each place and transition, and the page draws it again after every edit; laying it out from the arcs alone is still to do).
 
 ## For other people's Petri nets
 
 The point of the example is that someone with their own kind of net can see where theirs fits:
 
 - **Coloured nets** (tokens that carry data; "types" in some groups' words): the marking becomes a list of tokens per place, each a Hazel value of the place's type, and a transition's guard and output become Hazel functions in the rules. Hazel's types then check the colours.
-- **Weights, inhibitor arcs, priorities, timing:** each a field in `net.json` and a few lines in `Common`, with the vocabulary in `rules/preamble.hz`.
+- **Weights, inhibitor arcs, priorities, timing:** each a field in the net (`rules/Main.hz`) and a few lines in `Common`, with the vocabulary in `rules/preamble.hz`.
 - **The choice among enabled transitions** is the rule's (`Step`), so a group's own scheduling policy is a rule, written in Hazel, swapped without touching the app.
 
 ## Steps
@@ -28,5 +28,5 @@ The point of the example is that someone with their own kind of net can see wher
 1. 0.0.1: the example as an app (this version).
 2. A first site: Pages on, the page as it is (done 2026-11-06, checked over HTTPS on matthewhammer.org), then ℹ️ About (version, repository, hazeljs and Hazel builds).
 3. The game's look: the full-screen net, the tabbed panel, 📜 Scripts with the outline, ⚙️ Advanced.
-4. 🧩 Nets: more nets, the drawing from `net.json`, then a coloured net with typed tokens.
+4. 🧩 Nets: more nets (the drawing from the definition is done, 0.0.10), then a coloured net with typed tokens.
 5. Ask the group Cyrus named (Cambridge) what their nets need, and add one of theirs.

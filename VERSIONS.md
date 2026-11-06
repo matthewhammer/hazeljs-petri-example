@@ -4,6 +4,14 @@ Each version lists what the app does as of that version. The newest version is f
 
 ## Unreleased
 
+## 0.0.10 (2026-11-06)
+
+Everything in 0.0.9, plus:
+
+- **Nothing the program runs is hidden: the net is Hazel too, and editable.** A fourth listing, the module `Main` (`rules/Main.hz`), holds the net: its places, its transitions with their input and output arcs, the starting marking, and where each place and transition is drawn; and `on_event`, the handler the page calls (the rule). The program ends by reading Main's members, and the caption above the listing shows that line too. `net.json` is gone.
+- **The net is drawn from its definition, again after every edit.** A place a circle with its tokens, a transition a bar, an arc an arrow (its weight beside it when it is more than 1), straight unless it would pass close by another place or transition, then bent away from them. Add a place or a transition in `Main`, or move one, and the page draws the new net; change the places or the starting marking and the marking starts again from it. While the program does not build, the page keeps the last whole net.
+- **The Node example reads the net from Hazel too** (`npm run example`).
+
 ## 0.0.9 (2026-11-06)
 
 Everything in 0.0.8, plus:

@@ -11,7 +11,7 @@
   const root = document.getElementById("live");
   const dataEl = document.getElementById("live-data");
   if (!root || !dataEl) return;
-  const D = JSON.parse(dataEl.textContent);   // {preamble, tail, modules: [{name, text}], places, transitions, marking}
+  const D = JSON.parse(dataEl.textContent);   // {preamble, tail, modules: [{name, text}]}: since 0.0.10 the net is Hazel's (Main)
   const $ = sel => root.querySelector(sel);
   const el = (tag, attrs = {}, kids = []) => {
     const e = document.createElement(tag);
@@ -23,7 +23,8 @@
   // ---- the state the page keeps (the rules' texts are the listings', hazel-listings.js)
   const L = window.HazelListings;
   const PROGRAM = "petri";
-  const S = { marking: D.marking.slice(), built: null, log: [], n: 0 };
+  // (the net, S.net, is the last one a build gave: Main's places, transitions, where each is drawn, and its first marking)
+  const S = { net: null, marking: [], built: null, log: [], n: 0 };
   if (L) L.tail(PROGRAM, D.tail);
   const spec = () => L ? L.spec(PROGRAM, D.tail) : { preamble: D.preamble, modules: D.modules, tail: D.tail };
 
@@ -54,7 +55,7 @@
       const v = Array.isArray(c.value) ? c.value : [c.value];
       if (c.tag === "Take" && v.length === 3) {
         if (!(v[0] in m)) { note = `refused: there is no place ${v[0]}`; break; }
-        if (m[v[0]] - v[1] < 0) { note = `refused: ${D.places[v[0]]} would go below zero`; break; }
+        if (m[v[0]] - v[1] < 0) { note = `refused: ${S.net.places[v[0]]} would go below zero`; break; }
         m[v[0]] -= v[1]; c = v[2];
       } else if (c.tag === "Put" && v.length === 3) {
         if (!(v[0] in m)) { note = `refused: there is no place ${v[0]}`; break; }
@@ -75,7 +76,7 @@
   const LOG_KEEP = 50;
   function event(ev, quiet) {
     const before = S.marking.slice();
-    const view = { marking: before.slice(), transitions: D.transitions, draw: Math.random() };
+    const view = { marking: before.slice(), transitions: S.net.transitions, draw: Math.random() };
     const hazel = !!(S.built && S.built.ok && S.built.handler);
     let cmd, threw = "";
     const t0 = performance.now();
@@ -84,7 +85,7 @@
     const ms = performance.now() - t0;
     const r = perform(cmd);
     const entry = { n: ++S.n, at: new Date(), ev, eng: hazel && !threw ? "hazel" : "js", said: r.said, note: threw ? "Hazel threw: " + threw : r.note,
-                    cmd, ms, before, after: S.marking.slice() };
+                    cmd, ms, before, after: S.marking.slice(), places: S.net.places };
     if (!quiet) keep(entry);
     return entry;
   }
@@ -97,22 +98,138 @@
       const k = e.said[0] || e.note || "?"; counts[k] = (counts[k] || 0) + 1;
     }
     keep({ n: ++S.n, at: new Date(), ev: { tag: "Step" }, times: n, eng: engs.size === 1 ? [...engs][0] : "mixed", counts, notes,
-           ms: performance.now() - t0, before, after: S.marking.slice() });
+           ms: performance.now() - t0, before, after: S.marking.slice(), places: S.net.places });
   }
   function keep(entry) { S.log.unshift(entry); if (S.log.length > LOG_KEEP) S.log.length = LOG_KEEP; }
 
+  // ---- the net, drawn from its definition in Hazel (0.0.10, Matthew 2026-11-06: "let's expose all hidden definitions, to be
+  // edited"; "we need to re-generate the net dynamically"). Main's places, transitions and where each is drawn: a place a circle,
+  // its tokens a dot (or a count), a transition a bar, an arc an arrow, straight unless a straight line would pass close by
+  // another place or transition, then bent to the side that keeps it furthest from them. Drawn again whenever the definition
+  // changes; the tokens and which transitions can fire, after every event (drawNet).
+  const SVGNS = "http://www.w3.org/2000/svg";
+  const svgEl = (tag, attrs = {}, text) => {
+    const e = document.createElementNS(SVGNS, tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
+    if (text !== undefined) e.textContent = text;
+    return e;
+  };
+  const PR = 24, TW = 12, TH = 48;   // a place's radius; a transition's width and height
+  function renderNet(net) {
+    const holder = $("#live-net");
+    const P = net.places.map((name, i) => ({ name, ...(net.place_at[i] || { x: 60 + 120 * i, y: 50 }) }));
+    const T = net.transitions.map((t, i) => ({ ...t, ...(net.transition_at[i] || { x: 120 + 120 * i, y: 150 }) }));
+    const nodes = [...P.map(p => ({ x: p.x, y: p.y })), ...T.map(t => ({ x: t.x, y: t.y }))];
+    const xs = nodes.map(n => n.x), ys = nodes.map(n => n.y);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+    // where a line toward (tx, ty) leaves a node: a place's circle, or a transition's bar
+    const exit = (n, isPlace, tx, ty) => {
+      const dx = tx - n.x, dy = ty - n.y, len = Math.hypot(dx, dy) || 1;
+      if (isPlace) return [n.x + dx / len * (PR + 1), n.y + dy / len * (PR + 1)];
+      const s = Math.min((TW / 2 + 1) / Math.abs(dx || 1e-9), (TH / 2 + 1) / Math.abs(dy || 1e-9));
+      return [n.x + dx * s, n.y + dy * s];
+    };
+    const near = (pts, skip) => Math.min(...nodes.filter((_, k) => !skip.includes(k)).map(n => Math.min(...pts.map(([x, y]) => Math.hypot(x - n.x, y - n.y)))), Infinity);
+    const quad = (a, c, b, k) => { const u = k / 10; return [(1 - u) * (1 - u) * a[0] + 2 * (1 - u) * u * c[0] + u * u * b[0], (1 - u) * (1 - u) * a[1] + 2 * (1 - u) * u * c[1] + u * u * b[1]]; };
+    const arcs = [];
+    T.forEach((t, ti) => {
+      for (const a of t.inputs) arcs.push({ from: [a.place, true], to: [ti, false], w: a.weight });
+      for (const a of t.outputs) arcs.push({ from: [ti, false], to: [a.place, true], w: a.weight });
+    });
+    const nodeOf = ([i, isPlace]) => isPlace ? P[i] : T[i];
+    const idx = ([i, isPlace]) => isPlace ? i : P.length + i;
+    const g = svgEl("g");
+    for (const arc of arcs) {
+      const A = nodeOf(arc.from), B = nodeOf(arc.to);
+      if (!A || !B) continue;
+      const skip = [idx(arc.from), idx(arc.to)];
+      const dx = B.x - A.x, dy = B.y - A.y, len = Math.hypot(dx, dy) || 1;
+      const straight = [0, 2, 4, 6, 8, 10].map(k => [A.x + dx * k / 10, A.y + dy * k / 10]);
+      // an arc back the other way between the same two nodes bends, so the two do not lie on each other
+      const twin = arcs.some(o => o !== arc && idx(o.from) === idx(arc.to) && idx(o.to) === idx(arc.from));
+      let ctrl = null;
+      if (twin || near(straight.slice(1, -1), skip) < 34) {
+        let best = null;
+        for (const bend of [0.3, 0.55, 0.8]) for (const side of [1, -1]) {
+          const c = [(A.x + B.x) / 2 - dy / len * bend * len * side, (A.y + B.y) / 2 + dx / len * bend * len * side];
+          const d = near([1, 3, 5, 7, 9].map(k => quad([A.x, A.y], c, [B.x, B.y], k)), skip);
+          // (equal room either way, as in a net drawn symmetric: below, so mirror images bend alike)
+          if (!best || d > best.d + 2 || (Math.abs(d - best.d) <= 2 && c[1] > best.c[1])) best = { c, d };
+        }
+        ctrl = best.c;
+      }
+      const toward = ctrl || [B.x, B.y], back = ctrl || [A.x, A.y];
+      const s = exit(A, arc.from[1], toward[0], toward[1]), e = exit(B, arc.to[1], back[0], back[1]);
+      const d = ctrl ? `M${s[0].toFixed(1)} ${s[1].toFixed(1)} Q${ctrl[0].toFixed(1)} ${ctrl[1].toFixed(1)} ${e[0].toFixed(1)} ${e[1].toFixed(1)}` : `M${s[0].toFixed(1)} ${s[1].toFixed(1)} L${e[0].toFixed(1)} ${e[1].toFixed(1)}`;
+      g.append(svgEl("path", { d, fill: "none", stroke: "var(--muted)", "stroke-width": 1.8 }));
+      const [hx, hy] = ctrl ? [e[0] - ctrl[0], e[1] - ctrl[1]] : [e[0] - s[0], e[1] - s[1]], hl = Math.hypot(hx, hy) || 1;
+      const ux = hx / hl, uy = hy / hl, px = -uy, py = ux;
+      g.append(svgEl("path", { d: `M${(e[0] - 9 * ux + 4.5 * px).toFixed(1)} ${(e[1] - 9 * uy + 4.5 * py).toFixed(1)} L${e[0].toFixed(1)} ${e[1].toFixed(1)} L${(e[0] - 9 * ux - 4.5 * px).toFixed(1)} ${(e[1] - 9 * uy - 4.5 * py).toFixed(1)}`,
+                               fill: "none", stroke: "var(--muted)", "stroke-width": 1.8, "stroke-linejoin": "round" }));
+      if (arc.w !== 1) {
+        const m = ctrl ? quad(s, ctrl, e, 5) : [(s[0] + e[0]) / 2, (s[1] + e[1]) / 2];
+        g.append(svgEl("text", { x: (m[0] + 8 * px).toFixed(1), y: (m[1] + 8 * py + 4).toFixed(1), "font-size": 12, "text-anchor": "middle", fill: "var(--ink)", "font-weight": 700 }, String(arc.w)));
+      }
+    }
+    P.forEach((p, i) => {
+      g.append(svgEl("circle", { cx: p.x, cy: p.y, r: PR, fill: "var(--paper)", stroke: "var(--ink)", "stroke-width": 1.8 }));
+      g.lastChild.append(svgEl("title", {}, p.name));
+      g.append(svgEl("circle", { id: `live-tok-${i}`, cx: p.x, cy: p.y, r: 6, fill: "var(--ink)" }));
+      g.append(svgEl("text", { id: `live-cnt-${i}`, x: p.x, y: p.y + 5, "font-size": 15, "text-anchor": "middle", fill: "var(--ink)", "font-weight": 700, style: "display:none" }));
+      g.append(svgEl("text", { x: p.x, y: p.y + PR + 18, "font-size": 12.5, "text-anchor": "middle", fill: "var(--ink)", "font-weight": 700 }, p.name));
+    });
+    T.forEach((t, i) => {
+      const r = svgEl("rect", { id: `live-tr-${i}`, class: "live-tr", x: t.x - TW / 2, y: t.y - TH / 2, width: TW, height: TH, rx: 2, fill: "var(--accent)",
+                                tabindex: 0, role: "button", "aria-label": `Fire ${t.name}` });
+      r.append(svgEl("title", {}, "transition " + t.name));
+      g.append(r);
+      const left = t.x < cx;
+      g.append(svgEl("text", { x: t.x + (left ? -16 : 16), y: t.y + 4, "font-size": 12, "text-anchor": left ? "end" : "start", fill: "var(--accent)", "font-weight": 700 }, t.name));
+    });
+    const pad = 90, x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - PR - 16, x1 = Math.max(...xs) + pad, y1 = Math.max(...ys) + PR + 34;
+    const svg = svgEl("svg", { viewBox: `${x0} ${y0} ${x1 - x0} ${y1 - y0}`, role: "img", style: "width:100%;height:auto;display:block",
+      "aria-label": `The net, as Main defines it: ${P.length} places (${P.map(p => p.name).join(", ")}) and ${T.length} transitions (${T.map(t => t.name).join(", ")}).` });
+    svg.append(g);
+    holder.replaceChildren(svg);
+  }
+  // the net in the program's answer, checked: Main's places, place_at, transitions, transition_at and marking; or why not
+  function netOf(v) {
+    if (!v || typeof v !== "object") return [null, "the program gave no net"];
+    const { places, place_at, transitions, transition_at, marking } = v;
+    const list = x => Array.isArray(x);
+    if (!list(places) || !places.every(p => typeof p === "string")) return [null, "Main.places is not a list of names"];
+    if (!list(marking) || marking.length !== places.length || !marking.every(k => Number.isInteger(k) && k >= 0)) return [null, "Main.marking is not a count for each place"];
+    if (!list(transitions) || !transitions.every(t => t && typeof t.name === "string" && list(t.inputs) && list(t.outputs))) return [null, "Main.transitions is not a list of transitions"];
+    const okArc = a => a && Number.isInteger(a.place) && a.place >= 0 && a.place < places.length && Number.isInteger(a.weight) && a.weight > 0;
+    if (!transitions.every(t => t.inputs.every(okArc) && t.outputs.every(okArc))) return [null, "an arc in Main.transitions names no place, or has no positive weight"];
+    const okAt = (xs, n) => list(xs) && xs.length === n && xs.every(p => p && typeof p.x === "number" && typeof p.y === "number");
+    if (!okAt(place_at, places.length)) return [null, "Main.place_at is not a position for each place"];
+    if (!okAt(transition_at, transitions.length)) return [null, "Main.transition_at is not a position for each transition"];
+    return [{ places, place_at, transitions, transition_at, marking }, ""];
+  }
+  // a net from a build: drawn again when its shape changes; its marking started again when its places or its first marking do
+  function takeNet(net) {
+    const was = S.net;
+    S.net = net;
+    const shape = n => JSON.stringify([n.places, n.place_at, n.transitions, n.transition_at]);
+    if (!was || shape(was) !== shape(net)) renderNet(net);
+    if (!was || was.places.length !== net.places.length || JSON.stringify(was.marking) !== JSON.stringify(net.marking)) S.marking = net.marking.slice();
+    drawAll();
+  }
+
   // ---- drawing: the net's tokens and which transitions can fire, the status, the log
   function drawNet() {
+    if (!S.net) return;
     S.marking.forEach((k, i) => {
       const dot = root.querySelector(`#live-tok-${i}`), cnt = root.querySelector(`#live-cnt-${i}`);
       if (dot) dot.style.display = k === 1 ? "" : "none";
       if (cnt) { cnt.style.display = k === 1 || k === 0 ? "none" : ""; cnt.textContent = String(k); }
     });
-    D.transitions.forEach((t, i) => {
+    S.net.transitions.forEach((t, i) => {
       const r = root.querySelector(`#live-tr-${i}`);
       if (r) r.classList.toggle("off", !t.inputs.every(a => S.marking[a.place] >= a.weight));
     });
-    $("#live-marking").textContent = D.places.map((p, i) => `${p} ${S.marking[i]}`).join(" · ");
+    $("#live-marking").textContent = S.net.places.map((p, i) => `${p} ${S.marking[i]}`).join(" · ");
   }
   function errorText(message) {
     const m = String(message).match(/^Error in term:\s*\n\s*([\s\S]*?)\nNature of error: Expecting type ([\s\S]*?) but got inconsistent type ([\s\S]*)$/);
@@ -137,6 +254,7 @@
     for (const m of Object.keys(b.holes || {})) if (b.holes[m]) ul.append(el("li", { text: `${m}: ${b.holes[m]} hole${b.holes[m] > 1 ? "s" : ""} to fill` }));
     for (const m of Object.keys(b.incomplete || {})) if (b.incomplete[m]) ul.append(el("li", { text: `${m}: ${b.incomplete[m]} bracket or keyword without its partner` }));
     if (b.threw) ul.append(el("li", { text: "hazeljs: " + b.threw }));
+    if (b.netWhy && !b.errors.length) ul.append(el("li", { text: "the net: " + b.netWhy + (S.net ? "; the last whole net is kept" : "") }));
     st.append(ul);
   }
   // the 🪵 event log, drawn as Messed Up Dress Up's: one line an event (its number, time, engine, call, time taken, and what changed),
@@ -148,16 +266,16 @@
   const evText = e => e.times ? `Step ×${e.times}` : e.ev.tag + (e.ev.value === undefined ? "" : `(${hz(e.ev.value)})`);
   // a place that changed, as a chip: its name (a field chip, as the game's globals' fields) and its tokens before and after
   function changes(e) {
-    const ch = D.places.map((p, i) => [p, e.before[i], e.after[i]]).filter(([, b, a]) => b !== a);
+    const ch = e.places.map((p, i) => [p, e.before[i], e.after[i]]).filter(([, b, a]) => b !== a);
     if (!ch.length) return [span("log-chip log-quiet", "no change")];
     return ch.map(([p, b, a]) => span("log-chip", [span("log-field", p), span("log-eq", "="), `${b} ⟶ ${a}`]));
   }
   // the answer's commands, each as a chip, the places by name
-  function commands(cmd) {
+  function commands(cmd, places) {
     const out = [];
     for (let c = cmd, k = 0; c && c.tag !== "Done" && k < 60; k++) {
       const v = Array.isArray(c.value) ? c.value : [c.value];
-      if ((c.tag === "Take" || c.tag === "Put") && v.length === 3) { out.push(span("log-chip", [span("log-field", D.places[v[0]] ?? String(v[0])), ` ${c.tag === "Take" ? "−" : "+"}${v[1]}`])); c = v[2]; }
+      if ((c.tag === "Take" || c.tag === "Put") && v.length === 3) { out.push(span("log-chip", [span("log-field", places[v[0]] ?? String(v[0])), ` ${c.tag === "Take" ? "−" : "+"}${v[1]}`])); c = v[2]; }
       else if (c.tag === "Say" && v.length === 2) { out.push(span("log-chip", `Say(${JSON.stringify(String(v[0]))})`)); c = v[1]; }
       else { out.push(span("log-chip log-bad", hz(c))); break; }
     }
@@ -173,14 +291,14 @@
       grid.append(...row("event", el("code", { class: "log-json", text: hz(e.ev) })));
       grid.append(...row("answer", el("code", { class: "log-json", text: hz(e.cmd) })));
       const fx = el("div", { class: "log-effect" }, [
-        ...row("the answer, acted out", el("div", { class: "log-chips" }, commands(e.cmd))),
+        ...row("the answer, acted out", el("div", { class: "log-chips" }, commands(e.cmd, e.places))),
         ...row("the marking", el("div", { class: "log-chips" }, changes(e))),
         ...(e.note ? row("", el("div", { class: "log-bad", text: "⚠️ " + e.note })) : [])]);
       grid.append(fx);
     }
     grid.append(...row("time", span("log-diff", e.times ? `${fmtMs(e.ms)} for ${e.times} steps, ${fmtMs(e.ms / e.times)} each` : `rule ${fmtMs(e.ms)}`)));
     const side = (title, m) => el("div", {}, [el("div", { class: "log-k", style: "text-align:left", text: title }),
-      el("pre", { class: "log-json", text: D.places.map((p, i) => `${p.padEnd(6)} ${m[i]}`).join("\n") })]);
+      el("pre", { class: "log-json", text: e.places.map((p, i) => `${p.padEnd(6)} ${m[i]}`).join("\n") })]);
     const whole = el("details", { class: "log-globals" }, [el("summary", { text: "the marking before and after, in full" }),
       el("div", { class: "log-sides" }, [side("before", e.before), side("after", e.after)])]);
     return [grid, whole];
@@ -221,10 +339,13 @@
     let r, threw = "";
     const t0 = performance.now();
     try { r = window.Hazel.runProgram(sp); } catch (e) { threw = String(e && e.message || e); r = { ok: false, errors: [] }; }
+    const v = r.value && typeof r.value === "object" ? r.value : null;
+    const [net, why] = netOf(v);
     S.built = { key, ok: !!r.ok, errors: r.errors || [], holes: r.holes, incomplete: r.incomplete, ms: performance.now() - t0, threw,
-                handler: r.ok && typeof r.value === "function" ? r.value : null };
-    if (S.built.ok && !S.built.handler) S.built.ok = false;
-    drawStatus();
+                handler: r.ok && v && typeof v.on_event === "function" ? v.on_event : null, netWhy: net ? "" : why };
+    if (S.built.ok && !(S.built.handler && net)) S.built.ok = false;
+    // (a net that is whole is taken even while the program is not ok, so an error in the rules leaves the net Main defines)
+    if (net) takeNet(net); else drawAll();
   }
   function loadLib() {
     if (window.Hazel || S.libLoading) return;
@@ -238,17 +359,14 @@
   // ---- the page's parts, wired
   function wire() {
     if (L) L.onChange(PROGRAM, () => buildSoon());
-    D.transitions.forEach((t, i) => {
-      const r = root.querySelector(`#live-tr-${i}`);
-      if (!r) return;
-      r.setAttribute("tabindex", "0"); r.setAttribute("role", "button"); r.setAttribute("aria-label", `Fire ${t.name}`);
-      const go = () => { event({ tag: "Fire", value: i }); drawAll(); };
-      r.addEventListener("click", go);
-      r.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
-    });
-    $("#live-step").addEventListener("click", () => { event({ tag: "Step" }); drawAll(); });
-    $("#live-run").addEventListener("click", () => { runMany(100); drawAll(); });
-    $("#live-reset").addEventListener("click", () => { S.marking = D.marking.slice(); drawAll(); });
+    // a transition fires on a click or Enter, wherever the drawing has it (the drawing is made again when the net changes)
+    const fireAt = target => { const r = target && target.closest && target.closest(".live-tr"); if (!r || !S.net) return false;
+      event({ tag: "Fire", value: Number(r.id.replace("live-tr-", "")) }); drawAll(); return true; };
+    $("#live-net").addEventListener("click", e => fireAt(e.target));
+    $("#live-net").addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && fireAt(e.target)) e.preventDefault(); });
+    $("#live-step").addEventListener("click", () => { if (!S.net) return; event({ tag: "Step" }); drawAll(); });
+    $("#live-run").addEventListener("click", () => { if (!S.net) return; runMany(100); drawAll(); });
+    $("#live-reset").addEventListener("click", () => { if (!S.net) return; S.marking = S.net.marking.slice(); drawAll(); });
     $("#live-log-clear").addEventListener("click", () => { S.log = []; opened.clear(); drawLog(); });
     $("#live-rules").addEventListener("click", () => { if (L) L.reset(PROGRAM); buildSoon(0); });
     // ⛶ full screen (Matthew, 2026-11-06: "We need some FS support here, even in blog/report form?"), as the game's ⛶: the

@@ -1,4 +1,4 @@
-// hazeljs-petri-example, in Node: the same rules (rules/*.hz) and net (net.json) as the page, run through hazeljs; a few events by
+// hazeljs-petri-example, in Node: the same rules and net (rules/*.hz; the net in rules/Main.hz since 0.0.10) as the page, run through hazeljs; a few events by
 // hand, 2,000 random steps, a mistake and a hole, and what each costs. ^report(43) (https://matthewhammer.org/hazel/reports/043/)
 // quotes this example's runs.
 //
@@ -11,9 +11,12 @@ const read = path => readFileSync(new URL("../" + path, import.meta.url), "utf8"
 const PREAMBLE = read("rules/preamble.hz");
 const COMMON = read("rules/Common.hz");
 const RULES = read("rules/Rules.hz");
-// ---- 3. The app's own state: the net, as a file
-const NET = JSON.parse(read("net.json"));
-const spec = rules => ({ preamble: PREAMBLE, modules: [{ name: "Common", text: COMMON }, { name: "Rules", text: rules }], tail: NET.tail });
+// ---- 3. The net: Hazel too (rules/Main.hz, with the handler the app calls); the program ends by reading Main's members
+const MAIN = read("rules/Main.hz");
+const TAIL = "(places = Main.places, place_at = Main.place_at, transitions = Main.transitions, transition_at = Main.transition_at, "
+  + "marking = Main.marking, on_event = Main.on_event)";
+const spec = rules => ({ preamble: PREAMBLE, modules: [{ name: "Common", text: COMMON }, { name: "Rules", text: rules }, { name: "Main", text: MAIN }], tail: TAIL });
+const NET = Hazel.runProgram(spec(RULES)).value;   // the app's state starts from Main's net: places, transitions, marking
 const PLACES = NET.places;
 // (the view in the order of Net's fields, marking first: hazeljs 0.0.4 gets stuck on an object whose keys come in another order
 // when a field is a list; see the README)
@@ -46,7 +49,7 @@ function jsHandler(net, ev) {
 function build(rules) {
   const r = Hazel.runProgram(spec(rules));
   return { ok: r.ok, errors: r.errors.map(e => `${e.module ?? "the program"}: ${e.message.replace(/\s+/g, " ")}`),
-           holes: r.holes, incomplete: r.incomplete, ms: r.ms, handler: r.ok ? r.value : null };
+           holes: r.holes, incomplete: r.incomplete, ms: r.ms, handler: r.ok ? r.value.on_event : null };
 }
 const handlerOf = b => b.ok ? b.handler : jsHandler;
 

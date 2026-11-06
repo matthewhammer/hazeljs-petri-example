@@ -2,7 +2,7 @@
 
 **▶ Try it at https://matthewhammer.org/hazeljs-petri-example/**
 
-**A Petri net simulator whose firing rule is written in [Hazel](https://hazel.org), and run by [hazeljs](https://www.npmjs.com/package/hazeljs).** The page keeps the net and draws it; on each event it hands a typed view of the net to a Hazel function and acts out the command that comes back. Edit the rules in Hazel's own editor while the net runs: while they have an error or a hole, the page's own JavaScript answers instead.
+**A Petri net simulator whose firing rule is written in [Hazel](https://hazel.org), and run by [hazeljs](https://www.npmjs.com/package/hazeljs).** The page keeps the net and draws it; on each event it hands a typed view of the net to a Hazel function and acts out the command that comes back. Edit the rules in Hazel's own editor while the net runs, and the net itself, which is Hazel too (`Main`): the page draws it again after each edit. While the rules have an error or a hole, the page's own JavaScript answers instead.
 
 It is an example app for `hazeljs`, the second one after [Messed Up Dress Up](https://matthewhammer.org/kids-choice-games/dress-up/), a game whose rooms are scripted the same way. How it works, step by step, with the same example live on the page: [Scripting a JavaScript App in Hazel](https://matthewhammer.org/hazel/reports/043/).
 
@@ -43,10 +43,10 @@ npm run example
 
 | File | What it is |
 |---|---|
-| `net.json` | The net: places, the starting marking, transitions with their input and output arcs. Two processes sharing one lock. |
 | `rules/preamble.hz` | The vocabulary, in Hazel: what a rule is told (`Net`), what can happen (`Event`), and what it may answer (`Cmd`, a chain of commands ending in `Done`). |
 | `rules/Common.hz` | Helpers: which transitions can fire, and firing one as commands. |
 | `rules/Rules.hz` | The handler, `on_event : (Net, Event) -> Cmd`: `Fire(i)` fires transition `i` if it can; `Step` fires one of those that can, chosen by a random draw the page passes in. |
+| `rules/Main.hz` | The net, in Hazel: its places, its transitions with their input and output arcs, the starting marking, and where each place and transition is drawn; and the handler the page calls (`Main.on_event`, the rule). Two processes sharing one lock. Edit it on the page and the page draws the net again. |
 | `index.html`, `js/app.js` | The page, and its loader: it reads the files above into the page. |
 | `js/live.js` | The net and its events, the page's own JS handler, `hazeljs` building the rules, and the 🪵 event log. Shared with the report. |
 | `js/hazel-listings.js` | Turns each `<pre class="hazel">` into Hazel's editor, and makes go to definition work between them. Shared with the report. |
@@ -54,10 +54,10 @@ npm run example
 
 ## Your own kind of Petri net
 
-Most of what makes one group's nets differ from another's goes in three places: the vocabulary (`rules/preamble.hz`), the helpers (`rules/Common.hz`), and the net (`net.json`). For example:
+Most of what makes one group's nets differ from another's goes in three places: the vocabulary (`rules/preamble.hz`), the helpers (`rules/Common.hz`), and the net (`rules/Main.hz`). For example:
 
 - **Coloured nets**, whose tokens carry data (some groups call the colours *types*): a place's tokens become a list of Hazel values of that place's type, and a transition's guard and output become Hazel functions. Hazel's type checker then checks the colours as you write them.
-- **Weights, inhibitor arcs, priorities, timing:** a field in `net.json`, a case in `Common`, a word in the vocabulary.
+- **Weights, inhibitor arcs, priorities, timing:** a field in the net (`rules/Main.hz`), a case in `Common`, a word in the vocabulary.
 - **Which enabled transition fires** is the rule's choice (`Step`), so a scheduling policy is a few lines of Hazel, swapped without touching the app.
 
 [PLAN.md](PLAN.md) has what comes next, including more nets.
